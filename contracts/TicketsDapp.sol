@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 contract TicketsDapp is ERC721 {
     address public owner;
     uint256 public idCounter;
+    uint256 public totalMinted;
+
     mapping(uint256 => Occasion) public occasions;
     mapping (uint256 => mapping (uint256=>address)) public seatTaken;
     mapping (uint256 => uint256[]) public seatsHasTaken;
@@ -44,13 +46,13 @@ contract TicketsDapp is ERC721 {
         require(occasions[_id].availableTickets > 0, "No available tickets");
         require(msg.value >= occasions[_id].price, "Not enough Ether");
         require(seatTaken[_id][_seat] == address(0), "Seat already taken");
-        require(!seatReserved[_id][msg.sender], "Seat already reserved");
         require(_seat <= occasions[_id].totalTickets, "Seat does not exist");
         occasions[_id].availableTickets--;
         seatReserved[_id][msg.sender] = true;
         seatsHasTaken[_id].push(_seat);
         seatTaken[_id][_seat] = msg.sender;
-        _safeMint(msg.sender, _id);
+        totalMinted++;
+        _safeMint(msg.sender, totalMinted);
     }
 
     function getSeatsHasTaken(uint256 _id) public view returns (uint256[] memory) {
